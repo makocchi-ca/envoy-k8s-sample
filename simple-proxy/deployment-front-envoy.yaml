@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front-envoy
+spec:
+  selector:
+    matchLabels:
+      app: front-envoy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: front-envoy
+    spec:
+      volumes:
+      - name: envoy
+        configMap:
+          name: front-envoy-config
+      containers:
+      - name: envoy
+        image: envoyproxy/envoy-alpine:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: envoy
+            mountPath: /etc/envoy
+        command:
+          - "/usr/local/bin/envoy"
+        args:
+          - "--config-path /etc/envoy/front-envoy.yaml"
+        ports:
+          - containerPort: 80
+            name: envoy-http
+          - containerPort: 8001
+            name: envoy-admin
