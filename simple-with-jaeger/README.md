@@ -48,5 +48,5 @@ jaeger        NodePort    10.104.93.238   <none>        9411:31428/TCP,16686:310
 ```bash
 $ kubectl delete -f simple-with-jaeger/
 
-# or kubectl delete -n simple-with-jaeger -f simple-with-jaeger/
+# or kubectl delete namespace simple-with-jaeger
 ```

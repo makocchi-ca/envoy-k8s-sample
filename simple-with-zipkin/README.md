@@ -47,5 +47,5 @@ zipkin    NodePort   10.98.114.94   <none>        9411:32079/TCP   59s
 ```bash
 $ kubectl delete -f simple-with-zipkin/
 
-# or kubectl delete -n simple-with-zipkin -f simple-with-zipkin/
+# or kubectl delete namespace simple-with-zipkin
 ```
