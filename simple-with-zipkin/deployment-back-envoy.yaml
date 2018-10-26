@@ -1,0 +1,106 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service1
+spec:
+  selector:
+    matchLabels:
+      app: service1
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: service1
+    spec:
+      volumes:
+      - name: envoy
+        configMap:
+          name: service1-envoy-config
+      containers:
+      - name: nginx
+        image: makocchi/docker-nginx-hostname
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 80
+            name: nginx-http
+      - name: envoy
+        image: envoyproxy/envoy-alpine:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: envoy
+            mountPath: /etc/envoy
+        command:
+          - "/usr/local/bin/envoy"
+        args:
+          - "--config-path /etc/envoy/service-envoy.yaml"
+          - "--service-cluster service1"
+        ports:
+          - containerPort: 80
+            name: envoy-http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service2
+spec:
+  selector:
+    matchLabels:
+      app: service2
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: service2
+    spec:
+      volumes:
+      - name: envoy
+        configMap:
+          name: service2-envoy-config
+      containers:
+      - name: nginx
+        image: makocchi/docker-nginx-hostname
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 80
+            name: nginx-http
+      - name: envoy
+        image: envoyproxy/envoy-alpine:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: envoy
+            mountPath: /etc/envoy
+        command:
+          - "/usr/local/bin/envoy"
+        args:
+          - "--config-path /etc/envoy/service-envoy.yaml"
+          - "--service-cluster service2"
+        ports:
+          - containerPort: 8080
+            name: envoy-http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service1
+spec:
+  ports:
+  - name: service1-http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: service1
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service2
+spec:
+  ports:
+  - name: service2-http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: service2
+  type: ClusterIP
